@@ -1,5 +1,6 @@
 package com.aichatbot.service;
 
+import com.theokanning.openai.service.OpenAiService;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class OpenAiService {
+public class ChatGptService {
 
     @Value("${openai.api.key}")
     private String apiKey;
@@ -20,11 +21,11 @@ public class OpenAiService {
     @Value("${openai.model:gpt-3.5-turbo}")
     private String model;
 
-    private com.theokanning.openai.service.OpenAiService openAiClient;
+    private OpenAiService openAiClient;
 
     private void initializeOpenAiService() {
         if (openAiClient == null && apiKey != null && !apiKey.isEmpty()) {
-            openAiClient = new com.theokanning.openai.service.OpenAiService(apiKey);
+            openAiClient = new OpenAiService(apiKey);
         }
     }
 
