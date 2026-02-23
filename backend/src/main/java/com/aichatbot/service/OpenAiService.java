@@ -22,18 +22,18 @@ public class OpenAiService {
     @Value("${openai.model:gpt-3.5-turbo}")
     private String model;
 
-    private OpenAiService openAiService;
+    private OpenAiService openAiClient;
 
     private void initializeOpenAiService() {
-        if (openAiService == null && apiKey != null && !apiKey.isEmpty()) {
-            openAiService = new OpenAiService(apiKey);
+        if (openAiClient == null && apiKey != null && !apiKey.isEmpty()) {
+            openAiClient = new OpenAiService(apiKey);
         }
     }
 
     public String generateResponse(String userMessage, List<com.aichatbot.model.ChatMessage> history) {
         initializeOpenAiService();
 
-        if (openAiService == null) {
+        if (openAiClient == null) {
             return "OpenAI API key not configured. Please set openai.api.key in application.yml";
         }
 
@@ -64,7 +64,7 @@ public class OpenAiService {
                     .build();
 
             // Get response
-            String response = openAiService.createChatCompletion(request)
+            String response = openAiClient.createChatCompletion(request)
                     .getChoices()
                     .get(0)
                     .getMessage()
