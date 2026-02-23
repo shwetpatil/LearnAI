@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-chatbot-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ai_chatbot
+      POSTGRES_USER: chatbot_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chatbot_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ai-network
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai-chatbot-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ai_chatbot
+      SPRING_DATASOURCE_USERNAME: chatbot_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-chatbot_password}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      JWT_SECRET: ${JWT_SECRET:-my-secret-key}
+    depends_on:
+      - postgres
+    networks:
+      - ai-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai-chatbot-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8080
+    depends_on:
+      - backend
+    networks:
+      - ai-network
+
+volumes:
+  postgres_data:
+
+networks:
+  ai-network:
+    driver: bridge
