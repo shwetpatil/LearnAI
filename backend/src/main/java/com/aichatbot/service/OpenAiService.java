@@ -1,6 +1,5 @@
 package com.aichatbot.service;
 
-import com.aichatbot.model.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
