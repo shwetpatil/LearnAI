@@ -13,6 +13,7 @@ export function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
+    console.log('Submitting message:', input, 'with file:', file)
     e.preventDefault()
     if (input.trim()) {
       onSendMessage(input, file || undefined)

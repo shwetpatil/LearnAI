@@ -3,7 +3,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChatMessage } from './components/ChatMessage'
 import { ChatInput } from './components/ChatInput'
+import { AuthForm } from './components/AuthForm'
 import { apiClient } from './lib/api'
+import { authAPI } from './lib/auth'
 
 export interface Message {
   id: string
@@ -14,18 +16,32 @@ export interface Message {
 }
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [user, setUser] = useState<any>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  useEffect(() => {
+    // Check if user is authenticated on mount
+    if (authAPI.isAuthenticated()) {
+      setIsAuthenticated(true)
+      setUser(authAPI.getUser())
+    }
+  }, [])
+
+  const handleLogout = () => {
+    authAPI.logout()
+    setIsAuthenticated(false)
+    setUser(null)
+    setMessages([])
   }
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true)
+    setUser(authAPI.getUser())
+  }
 
   const handleSendMessage = async (content: string, file?: File) => {
     // Add user message
@@ -70,12 +86,39 @@ export default function Home() {
     }
   }
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (isAuthenticated) {
+      scrollToBottom()
+    }
+  }, [messages, isAuthenticated])
+
+  // Show login form if not authenticated
+  if (!isAuthenticated) {
+    return <AuthForm onSuccess={handleAuthSuccess} />
+  }
+
   return (
     <main className="flex h-screen flex-col">
       {/* Header */}
-      <div className="border-b border-slate-700 bg-slate-800/50 px-6 py-4">
-        <h1 className="text-2xl font-bold text-white">AI Chatbot</h1>
-        <p className="text-sm text-slate-400">Powered by OpenAI & Spring Boot</p>
+      <div className="border-b border-slate-700 bg-slate-800/50 px-6 py-4 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-white">AI Chatbot</h1>
+          <p className="text-sm text-slate-400">Powered by OpenAI & Spring Boot</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-slate-300">Welcome, {user?.username || user?.email}</span>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white text-sm font-medium transition"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Messages Container */}
