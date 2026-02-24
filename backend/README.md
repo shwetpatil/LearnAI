@@ -1,237 +1,208 @@
-# AI Chatbot Backend
+AI Chatbot Backend
 
-Spring Boot 3.4 AI Chatbot backend with OpenAI integration, JWT authentication, and JPA persistence.
+Spring Boot 3.4 backend with JWT authentication, OpenAI integration, and PostgreSQL persistence.
 
-## 🚀 Quick Start
+⸻
 
-```bash
-# Build
-mvn clean install
+🚀 Local Development Setup
 
-# Run
-mvn spring-boot:run
+Prerequisites
+	•	Java 21
+	•	Maven
+	•	Docker Desktop (running)
 
-# Verify it's running (in another terminal)
-curl -s http://localhost:8080 && echo "✓ Backend OK"
-```
+Verify:
 
-## Features
-
-- 🤖 OpenAI GPT-3.5 Integration
-- 🔐 JWT Authentication & Authorization
-- 💾 Chat History with JPA
-- 📁 File Upload Support
-- 🚀 Spring Boot 3.4 with Java 21 LTS
-- 🗄️ H2 Database (Development) / PostgreSQL (Production)
-
-## Prerequisites
-
-- **Java 21 LTS** (installed at `~/.jdk/jdk-21.0.8(1)/jdk-21.0.8+9/Contents/Home`)
-- **Maven 3.9.12** (configured in `~/.zshrc`)
-- OpenAI API Key (optional)
-
-## Setup
-
-### 1. Install Java 21 & Maven
-
-Java and Maven are already configured globally in `~/.zshrc`:
-```bash
-export JAVA_HOME=/Users/siddharthy/.jdk/jdk-21.0.8'(1)'/jdk-21.0.8+9/Contents/Home
-export MAVEN_HOME=/opt/homebrew/Cellar/maven/3.9.12/libexec
-export PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
-```
-
-Verify installation:
-```bash
 java -version
 mvn -v
-```
+docker –version
 
-### 2. Navigate to Backend
-```bash
-cd /Users/siddharthy/Shweta-S/Learn/LaernAi/backend
-```
+⸻
 
-### 3. Build Project
-```bash
+🐳 Docker Setup (PostgreSQL Local Database)
+
+This project uses PostgreSQL via Docker for local development.
+
+⸻
+
+1️⃣ docker-compose.yml
+
+Make sure this file exists inside the backend directory:
+
+services:
+postgres:
+image: postgres:16
+container_name: aichatbot_postgres
+restart: always
+environment:
+POSTGRES_DB: aichatbot
+POSTGRES_USER: aichat_user
+POSTGRES_PASSWORD: password123
+ports:
+- “5432:5432”
+volumes:
+- postgres_data:/var/lib/postgresql/data
+
+volumes:
+postgres_data:
+
+⸻
+
+2️⃣ Start PostgreSQL
+
+From the backend folder:
+
+docker compose up -d
+
+Verify container:
+
+docker ps
+
+You should see:
+	•	Image: postgres:16
+	•	Port: 5432
+
+⸻
+
+3️⃣ Verify Database Exists
+
+docker exec -it aichatbot_postgres psql -U aichat_user -d aichatbot
+
+Inside PostgreSQL:
+
+\l
+
+You should see database:
+aichatbot
+
+Exit:
+
+\q
+
+⸻
+
+4️⃣ Stop PostgreSQL
+
+docker compose down
+
+If you want to remove all database data:
+
+docker compose down -v
+
+⸻
+
+🛠 Build & Run Backend
+
+Build
+
 mvn clean install
-```
 
-### 4. Run the Backend
+⸻
 
-**Option A: Direct Run (Foreground)**
-```bash
+Start Backend (Development Profile)
+
 mvn spring-boot:run
-```
 
-**Option B: Run in Background**
-```bash
-mvn spring-boot:run > /tmp/backend.log 2>&1 &
-```
+Application runs at:
 
-**Option C: Build & Run JAR**
-```bash
-mvn clean package
-java -jar target/ai-chatbot-backend-1.0.0.jar
-```
+http://localhost:8080
 
-## Verification
+⸻
 
-Check if backend is running:
+🧪 Test API Using curl
 
-### Option 1: Simple check
-```bash
-curl -s http://localhost:8080
-```
+Register User
 
-### Option 2: With success message
-```bash
-curl -s http://localhost:8080 && echo "" && echo "✓ Backend is RUNNING"
-```
+curl -X POST http://localhost:8080/api/auth/register -H "Content-Type: application/json" -d '{"username":"john","email":"john@example.com","password":"pass123"}'
 
-### Option 3: Verbose output
-```bash
-curl -i http://localhost:8080
-```
+⸻
 
-### Option 4: With timeout
-```bash
-curl -s -m 3 http://localhost:8080 && echo "✓ Backend responding"
-```
+Login
 
-### Option 5: Full system status
-```bash
-lsof -i :8080 | head -2 && curl -s http://localhost:8080 && echo "✓ API responding"
-```
+curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d '{"email":"john@example.com","password":"pass123"}'
 
-### Additional verification methods:
-```bash
-# Check port 8080 is listening
-lsof -i :8080
+⸻
 
-# View logs (if running in background)
-tail -50 /tmp/backend.log
+Send Chat Message (Authenticated)
 
-# Test specific endpoints
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"john","email":"john@example.com","password":"pass123"}'
-```
+Replace YOUR_TOKEN with the JWT returned from login:
 
-## Quick Commands
+curl -X POST http://localhost:8080/api/chat 
+-H “Authorization: Bearer YOUR_TOKEN” 
+-F “message=Hello AI”
 
-```bash
-# Start backend in background
-mvn spring-boot:run > /tmp/backend.log 2>&1 &
+⸻
 
-# Check if backend is running (FASTEST)
-curl -s http://localhost:8080 && echo "✓ Backend OK"
+🔎 Optional: Connect to PostgreSQL Manually
 
-# Check port 8080
-lsof -i :8080 | head -5
+docker exec -it aichatbot_postgres psql -U aichat_user -d aichatbot
 
-# Stop backend
+List tables:
+
+\dt
+
+Exit:
+
+\q
+
+⸻
+
+🌍 Production (AWS Ready)
+
+Run production profile:
+
+java -jar target/ai-chatbot-backend-1.0.0.jar –spring.profiles.active=prod
+
+Required environment variables:
+
+DB_URL
+DB_USERNAME
+DB_PASSWORD
+OPENAI_API_KEY
+JWT_SECRET
+
+Example:
+
+export DB_URL=jdbc:postgresql://your-rds-endpoint:5432/aichatbot
+export DB_USERNAME=admin
+export DB_PASSWORD=secret
+export OPENAI_API_KEY=your_key
+export JWT_SECRET=your_secret
+
+Production uses:
+	•	PostgreSQL (AWS RDS compatible)
+	•	Hibernate schema validation
+	•	Environment-based configuration
+
+⸻
+
+🧰 Tech Stack
+	•	Spring Boot 3.4
+	•	Java 21
+	•	PostgreSQL
+	•	Docker
+	•	JWT (Spring Security)
+	•	JPA / Hibernate
+	•	OpenAI API
+
+⸻
+
+🔧 Troubleshooting
+
+Port 8080 already in use:
+
 lsof -ti :8080 | xargs kill -9
 
-# View backend logs
-tail -20 /tmp/backend.log
+Restart database:
 
-# Clear and restart
-lsof -ti :8080 | xargs kill -9 && sleep 2 && mvn spring-boot:run > /tmp/backend.log 2>&1 &
+docker compose down
+docker compose up -d
 
-# Full status check
-echo "=== Backend Status ===" && lsof -i :8080 | head -2 && curl -s http://localhost:8080 && echo "✓ Running"
-```
+⸻
 
-## API Endpoints
-
-### Authentication
-- **POST** `/api/auth/register` - Register new user
-  ```json
-  {"username": "john", "email": "john@example.com", "password": "pass123"}
-  ```
-- **POST** `/api/auth/login` - Login user
-  ```json
-  {"email": "john@example.com", "password": "pass123"}
-  ```
-- **GET** `/api/auth/validate` - Validate JWT token
-
-### Chat
-- **POST** `/api/chat` - Send message to chatbot
-- **GET** `/api/chat/history/{conversationId}` - Get conversation history
-
-## Environment Variables (Optional)
-
-```bash
-export OPENAI_API_KEY=your-openai-api-key
-export JWT_SECRET=your-jwt-secret-key
-```
-
-## Configuration
-
-Edit `src/main/resources/application.yml` to configure:
-- Database connection (H2 for dev, PostgreSQL for prod)
-- OpenAI model and API settings
-- JWT expiration and secret
-- Server port (default: 8080)
-- CORS origins
-
-## Database
-
-- **Development**: H2 in-memory database (auto-created)
-- **Production**: Configure PostgreSQL in `application.yml`
-
-## CORS Configuration
-
-Frontend allowed origins:
-- `http://localhost:3000`
-- `http://localhost:3001`
-- `http://127.0.0.1:3000`
-- `http://127.0.0.1:3001`
-
-## Project Structure
-
-- `src/main/java/com/aichatbot/`
-  - `controller/` - REST endpoints (Auth, Chat)
-  - `service/` - Business logic (Auth, Chat, OpenAI)
-  - `model/` - JPA entities (User, ChatMessage)
-  - `repository/` - Data access layer
-  - `security/` - JWT authentication & filters
-  - `config/` - Spring security configuration
-  - `dto/` - Data transfer objects
-
-## Troubleshooting
-
-### Port 8080 already in use
-```bash
-lsof -ti :8080 | xargs kill -9
-```
-
-### Java version mismatch
-```bash
-java -version  # Should show Java 21.0.8
-```
-
-### Maven not found
-```bash
-source ~/.zshrc  # Reload shell configuration
-mvn -v
-```
-
-## Technology Stack
-
-- **Framework**: Spring Boot 3.4.0
-- **Language**: Java 21 LTS
-- **Build Tool**: Maven 3.9.12
-- **Database**: H2 (Development) / PostgreSQL (Production)
-- **Authentication**: JWT + Spring Security
-- **ORM**: JPA/Hibernate
-- **API**: RESTful
-
-## Status
-
-✅ Backend running on port 8080
-✅ Java 21 LTS configured
-✅ Maven globally accessible
-✅ Authentication implemented
-✅ CORS configuration updated
+✅ Current Architecture
+	•	Dockerized PostgreSQL (local)
+	•	Dev profile with auto schema update
+	•	Prod profile (AWS-compatible)
+	•	Secure JWT authentication
+	•	Persistent chat storage
