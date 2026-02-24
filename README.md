@@ -171,3 +171,4 @@ For issues and questions:
 1. Check existing issues
 2. Create a new issue with detailed description
 3. Include environment details (OS, versions, etc.)
+# LearnAI
