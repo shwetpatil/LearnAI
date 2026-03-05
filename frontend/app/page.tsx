@@ -7,7 +7,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <span className="text-xl font-semibold text-white">AI Chatbot</span>
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-slate-200 hover:text-white transition">
+            <Link href="/hello" className="text-slate-200 hover:text-white transition">
               Home
             </Link>
             <Link href="/chat" className="text-slate-200 hover:text-white transition">
@@ -18,6 +18,9 @@ export default function HomePage() {
             </Link>
             <Link href="/news" className="text-slate-200 hover:text-white transition">
               News
+            </Link>
+            <Link href="/hello" className="text-slate-200 hover:text-white transition">
+              Hello
             </Link>
           </div>
         </div>
