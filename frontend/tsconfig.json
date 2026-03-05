@@ -36,7 +36,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "testserver/generateProducts.js", "testserver/generateNews.js"  ],
   "exclude": [
     "node_modules"
   ]

@@ -1,6 +1,6 @@
 'use client'
 
-import { Message } from '../page'
+import { Message } from '../types/chat'
 import ReactMarkdown from 'react-markdown'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
