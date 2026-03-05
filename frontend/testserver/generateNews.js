@@ -13,16 +13,14 @@ function generateNews() {
     const author = authors[i % authors.length]
 
     return {
-      id: id, // ✅ numeric
+      id,
       title: `Breaking ${category} News Headline ${id}`,
       summary: `This is a short summary for news article ${id}.`,
       content: `Full content of article ${id}.`,
       image: `https://picsum.photos/seed/news${id}/800/400`,
       category,
       author,
-      publishedAt: new Date(
-        Date.now() - i * 1000 * 60 * 60
-      ).toISOString(),
+      publishedAt: new Date(Date.now() - i * 3600000).toISOString(),
       views: Math.floor(Math.random() * 50000),
       tags: [category, "Trending", "Latest"],
     }
@@ -31,28 +29,13 @@ function generateNews() {
 
 let db = {}
 
-// 1️⃣ If file exists → read it
 if (fs.existsSync(DB_FILE)) {
-  const rawData = fs.readFileSync(DB_FILE, "utf-8")
-  db = JSON.parse(rawData)
-  console.log("📂 Existing db.json found.")
-} else {
-  console.log("📂 db.json not found. Creating new one.")
+  db = JSON.parse(fs.readFileSync(DB_FILE, "utf8"))
+  console.log("📂 Existing db.json loaded")
 }
 
-// 2️⃣ Generate fresh news
-const news = generateNews()
+db.news = generateNews()
 
-// 3️⃣ Replace if exists, add if not
-if (db.news) {
-  console.log("📰 Replacing existing news collection.")
-} else {
-  console.log("📰 Adding news collection.")
-}
-
-db.news = news
-
-// 4️⃣ Write file
 fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2))
 
-console.log("✅ News collection updated successfully.")
+console.log("✅ News collection replaced/created successfully")
